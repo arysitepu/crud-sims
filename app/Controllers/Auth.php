@@ -33,6 +33,7 @@ class Auth extends BaseController
                 $redirectRoute = $this->getRedirectRoute($user['role']);
                 // dd($redirectRoute);
                 $sessLogin = [
+                    'id_user' => $user['id_user'],
                     'isLogin' => true,
                     'name' => $user['name'],
                     'username' => $user['username'],

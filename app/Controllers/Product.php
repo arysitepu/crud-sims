@@ -3,28 +3,33 @@
 namespace App\Controllers;
 use App\Models\Categories_model;
 use App\Models\Product_model;
+use App\Models\Auth_model;
 
 class Product extends BaseController{
 
     protected $category_model;
     protected $product_model;
+    protected $auth_model;
     protected $session;
 
     public function __construct()
     {
         $this->category_model = New Categories_model();
         $this->product_model = new Product_model();
+        $this->auth_model = new Auth_model();
         $this->session = session();
     }
 
     public function index()
     {
-        
+        $id = session()->get('id_user');
+        $profile = $this->auth_model->find($id);
         $product = $this->product_model->getProduct()->getResultArray();
         $category = $this->category_model->findAll();
         $data = [
             'products' => $product,
-            'categories' => $category
+            'categories' => $category,
+            'profile' => $profile
         ];
         // dd($data);
         return view('admin/products', $data);
@@ -32,11 +37,14 @@ class Product extends BaseController{
 
     public function add()
     {
+        $id = session()->get('id_user');
+        $profile = $this->auth_model->find($id);
         $category = $this->category_model->findAll();
         $validation = \Config\Services::validation();
         $data = [
             'categories' => $category,
-            'validation' => $validation
+            'validation' => $validation,
+            'profile' => $profile
         ];
         return view('admin/add-product', $data);
     }
@@ -129,11 +137,15 @@ class Product extends BaseController{
 
     public function edit($id)
     {
+       $id_user = session()->get('id_user');
+       $profile = $this->auth_model->find($id_user);
        $product = $this->product_model->getDetailProduct($id);
+    //    dd($product);
        $category = $this->category_model->findAll();
        $data = [
         'product' => $product,
-        'categories' => $category
+        'categories' => $category,
+        'profile' => $profile
        ];
     //    dd($data);
        return view('admin/edit-product', $data);
@@ -195,6 +207,7 @@ class Product extends BaseController{
             return redirect()->back();
         } 
         $file_gambar = $this->request->getFile('gambar');
+        // dd($file_gambar);
         if($file_gambar->getError() == 4){
             $nama_gambar = $this->request->getVar('gambar_lama');
         }elseif($file_gambar->getError() == null){
@@ -255,10 +268,13 @@ class Product extends BaseController{
             $products = $this->product_model->getProduct()->getResultArray();
         }
 
+        $id_user = session()->get('id_user');
+        $profile = $this->auth_model->find($id_user);
         $category = $this->category_model->findAll();
         $data = [
             'products' => $products,
-            'categories' => $category
+            'categories' => $category,
+            'profile' => $profile
         ];
         // dd($data);
         return view('admin/products', $data);
