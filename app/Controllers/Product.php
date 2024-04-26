@@ -4,6 +4,8 @@ namespace App\Controllers;
 use App\Models\Categories_model;
 use App\Models\Product_model;
 use App\Models\Auth_model;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 class Product extends BaseController{
 
@@ -278,6 +280,79 @@ class Product extends BaseController{
         ];
         // dd($data);
         return view('admin/products', $data);
+    }
+
+    public function excel()
+    {
+       
+        $nama_barang = $this->request->getVar('nama_barang');
+        $id_category = $this->request->getVar('id_category');
+
+       // Inisialisasi variabel $products
+        $products = [];
+
+        // Periksa apakah terdapat nilai $nama_barang dan $id_category
+        if($nama_barang && $id_category){
+            $products = $this->product_model->search($nama_barang, $id_category)->getResult();
+        } elseif($nama_barang) {
+            $products = $this->product_model->search($nama_barang, $id_category)->getResult();
+        } elseif($id_category) {
+            $products = $this->product_model->search($nama_barang, $id_category)->getResult();
+            // dd($products);
+        } else {
+            $products = $this->product_model->getProduct()->getResult();
+        }
+        
+        $spreadsheet = new Spreadsheet();
+        $activeWorksheet = $spreadsheet->getActiveSheet();
+        $activeWorksheet->setCellValue('A1', 'No');
+        $activeWorksheet->setCellValue('B1', 'Nama Barang');
+        $activeWorksheet->setCellValue('C1', 'Kategori');
+        $activeWorksheet->setCellValue('D1', 'Harga beli');
+        $activeWorksheet->setCellValue('E1', 'Harga Jual');
+        $activeWorksheet->setCellValue('F1', 'Stock Barang');
+        
+
+        $column = 2;
+        foreach($products as $product){
+            $activeWorksheet->setCellValue('A'.$column, ($column-1));
+            $activeWorksheet->setCellValue('B'.$column, $product->nama_barang);
+            $activeWorksheet->setCellValue('C'.$column, $product->name_category);
+            $activeWorksheet->setCellValue('D'.$column, 'Rp.'.' '.number_format($product->harga_beli, 2, ',', '.'));
+            $activeWorksheet->setCellValue('E'.$column, 'Rp.'.' '.number_format($product->harga_jual, 2, ',', '.'));
+            $activeWorksheet->setCellValue('F'.$column, $product->stock_barang);
+            $column++;
+        }
+
+        $activeWorksheet->getStyle('A1:F1')->getFont()->setBold(true);
+        $activeWorksheet->getStyle('A1:F1')->getFill()
+                        ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
+                        ->getStartColor()->setARGB('FFFFFF00');
+        $styleArray = [
+            'borders' => [
+                'allBorders' => [
+                    'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
+                    'color' => ['argb' => 'FF000000']
+                ]
+            ]
+        ];
+
+        $activeWorksheet->getStyle('A1:F'.($column-1))->applyFromArray($styleArray);
+
+        $activeWorksheet->getColumnDimension('A')->setAutoSize(true);
+        $activeWorksheet->getColumnDimension('B')->setAutoSize(true);
+        $activeWorksheet->getColumnDimension('C')->setWidth(20);
+        $activeWorksheet->getColumnDimension('D')->setAutoSize(true);
+        $activeWorksheet->getColumnDimension('E')->setAutoSize(true);
+        $activeWorksheet->getColumnDimension('F')->setAutoSize(true);
+       
+
+        $writer = new Xlsx($spreadsheet);
+        header('Content-type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment;filename=Data Barang.xlsx');
+        header('Cache-Control: max-age=0');
+        $writer->save('php://output');
+        exit();
     }
 
 }

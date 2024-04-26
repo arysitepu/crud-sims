@@ -22,6 +22,7 @@ $routes->group('superadmin', ['filter' => 'authFilter:1'], function($routes){
     $routes->get('edit-profile/(:num)', 'Home::edit_profile/$1');
     $routes->post('update-profile/(:num)', 'Home::update_profile/$1');
     $routes->get('search', 'Product::search');
+    $routes->get('export-excel', 'Product::excel');
 });
 $routes->group('user', ['filter' => 'authFilter:0'], function($routes){
     $routes->get('dashboard', 'Home::index');

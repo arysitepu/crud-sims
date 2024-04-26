@@ -21,7 +21,6 @@
                     <div class="col mr-2">
                         <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
                            View Product</div>
-                        <div class="h5 mb-0 font-weight-bold text-gray-800">100</div>
                         <div class="mt-3">
                             <a href="/superadmin/product" class="btn btn-sm btn-outline-primary">View</a>
                         </div>

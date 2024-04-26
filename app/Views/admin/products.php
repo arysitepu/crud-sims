@@ -27,7 +27,8 @@
                 </div>
                 <button class="btn btn-outline-danger mt-2"> <i class="fas fa-search"></i> Search </button>
                 <a href="/superadmin/product" class="btn btn-outline-danger mt-2"> <i class="fas fa-sync"></i> Reset </a>
-                </form>
+                <button type="submit" formaction="/superadmin/export-excel" class="btn btn-outline-success mt-2"> <i class="fas fa-download"></i> Excel </button>
+            </form>
             </div>
         </div>
 
